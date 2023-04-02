@@ -85,46 +85,7 @@ class LinearClassifier(object):
         weight_decay=0.001,
         max_epochs=100,
     ):
-
-        Result = namedtuple("Result", "accuracy loss")
-        train_res = Result(accuracy=[], loss=[])
-        valid_res = Result(accuracy=[], loss=[])
-
-        print("Training", end="")
-        self.weights.requires_grad = True
-        torch_loss_fn = torch.nn.MultiMarginLoss()
-        for epoch_idx in range(max_epochs):
-            total_correct = 0
-            average_loss = 0
-            average_loss_torch = 0
-            for x,y in dl_train:
-                y_pred, x_scores = self.predict(x)
-                loss = loss_fn(x, y, x_scores, y_pred).item()
-                torch_loss = torch_loss_fn(x_scores, y).item()*self.n_classes
-                average_loss += loss
-                average_loss_torch += torch_loss
-                total_correct += self.evaluate_accuracy(y,y_pred)
-                grad = loss_fn.grad() + weight_decay*self.weights
-                self.weights = self.weights - learn_rate*grad
-            # print(total_correct, (average_loss / len(dl_train)).item())
-            average_loss_torch /= len(dl_train)
-            print(total_correct/len(dl_train))
-            train_res.accuracy.append(total_correct / len(dl_train))
-            train_res.loss.append(average_loss / len(dl_train))
-            total_correct = 0
-            average_loss = 0
-            self.weights = self.weights.detach()
-            with torch.no_grad():
-                for x,y in dl_valid:
-                    y_pred, x_scores = self.predict(x)
-                    loss = loss_fn(x, y, x_scores, y_pred).item()
-                    average_loss += loss
-                    total_correct += self.evaluate_accuracy(y,y_pred)
-                valid_res.accuracy.append(total_correct / len(dl_valid))
-                valid_res.loss.append((average_loss / len(dl_valid)))
-                
-
-            # TODO:
+         # TODO:
             #  Implement model training loop.
             #  1. At each epoch, evaluate the model on the entire training set
             #     (batch by batch) and update the weights.
@@ -137,9 +98,41 @@ class LinearClassifier(object):
 
             # ====== YOUR CODE: ======
             # ========================
-            print(".", end="")
 
+        Result = namedtuple("Result", "accuracy loss")
+        train_res = Result(accuracy=[], loss=[])
+        valid_res = Result(accuracy=[], loss=[])
+
+        print("Training", end="")
+        self.weights.requires_grad = True
+        for epoch_idx in range(max_epochs):
+            total_correct = 0
+            average_loss = 0
+            average_loss_torch = 0
+            for x,y in dl_train:
+                y_pred, x_scores = self.predict(x)
+                loss = loss_fn(x, y, x_scores, y_pred).item()
+                average_loss += loss
+                total_correct += self.evaluate_accuracy(y,y_pred)
+                grad = loss_fn.grad() + weight_decay*self.weights
+                self.weights = self.weights - learn_rate*grad
+            # print(total_correct, (average_loss / len(dl_train)).item())
+            # print(total_correct/len(dl_train))
+            train_res.accuracy.append(total_correct / len(dl_train))
+            train_res.loss.append(average_loss / len(dl_train))
+            total_correct = 0
+            average_loss = 0
+            with torch.no_grad():
+                for x,y in dl_valid:
+                    y_pred, x_scores = self.predict(x)
+                    loss = loss_fn(x, y, x_scores, y_pred).item()
+                    average_loss += loss
+                    total_correct += self.evaluate_accuracy(y,y_pred)
+                valid_res.accuracy.append(total_correct / len(dl_valid))
+                valid_res.loss.append((average_loss / len(dl_valid)))
+            print(".", end="")
         print("")
+        self.weights = self.weights.detach()
         return train_res, valid_res
 
     def weights_as_images(self, img_shape, has_bias=True):
