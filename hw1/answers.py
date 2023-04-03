@@ -48,13 +48,6 @@ distribution). this case correspond to high bias and low variance. the "sweet sp
 $err_{tot} = bias^2+vairance+noise$. we conclude that increasing K will reduce to generalization
 error up to a point where the total error starts to increase. 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
 """
 
 part2_q2 = r"""
@@ -72,40 +65,32 @@ part2_q2 = r"""
 
 part3_q1 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+The loss is computed only on wrong clasiffications and its goal is to make sure
+all wrong classes will get loss higher by at least $Delta$ from the true class. as long 
+as this work, the true class will be classified correctly and therefore the size of $Delta$ 
+is not important. its only role is to seperate between wrong classes and true class
 
 """
 
 part3_q2 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+1. Based on the visualitation we can notice that each class (row) of weights learns a representation of 
+the shape of the corresponding class label. the representation is based in the training set and if we have
+in the test set an image which is very different from the representation of its label in the train set, but 
+more close to a different representation, the model will miscalsiffied the image as the later class. we can see it happened between
+digits 7 and 1, digits 7 and 9 and digits 5 and 2 (these are similiar digits so the probability for this to occur in those digits is higher).
+2. In KNN there is no actual learning. the classification in based only on neighbouring samples. In LinearClassification model there is no affect of neighbouring samples. The model learn the unique features of each label and classify based on the similiarity between sample's features and the learned features.  
 
 """
 
 part3_q3 = r"""
 **Your answer:**
 
+1. We would say the learning rate is good. If it was too high, the loss would bounce between approximatley the same values and 
+would not decrease. in case of too low learning rate the loss would decrease very slowly and we would not reach saturation (plateau in the loss and accuracy). since in our graphs we see steep decrease (or increase in the case of accuracy) and than a more flat area, in conclude that the learning rate is good.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. **wait for better results**
 
 """
 
