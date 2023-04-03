@@ -11,26 +11,15 @@ math (delimited with $$).
 part1_q1 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+1. False. the in sample error comes from the data that the model was trained on - train set. thet test set represent the out of sample error.
+2. False. the amount of data in the train set determin the in-sample error (or bias error) which reflect the ability of the model to learn the relation between features and samples. different splits results in different in-sample error, different weights parameters and therefore different performance.
+3.True. during cross validation we should not use the test set in order to prevent leakage. the test set should be use only for model evaluation.
+4. False. the validation error at each fold only determine the model parameters inside the cross validation procedure (as each fold convert one train set to a validation set, using validation error as proxy for generalization error is biased)
 """
 
 part1_q2 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+no. choosing values for model hyperparameters should be done using training-set and cross validation procedure. using the test-set for that preform a leakage of the test-set into the training procedure. this way, any evaluation of the model using the test-set would be biased and would not reflect a true generalization error.
 
 """
 

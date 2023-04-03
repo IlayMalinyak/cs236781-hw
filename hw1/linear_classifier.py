@@ -110,14 +110,15 @@ class LinearClassifier(object):
             average_loss = 0
             average_loss_torch = 0
             for x,y in dl_train:
+                grad = 0
                 y_pred, x_scores = self.predict(x)
                 loss = loss_fn(x, y, x_scores, y_pred).item()
                 average_loss += loss
-                total_correct += self.evaluate_accuracy(y,y_pred)
                 grad = loss_fn.grad() + weight_decay*self.weights
                 self.weights = self.weights - learn_rate*grad
+                total_correct += self.evaluate_accuracy(y,y_pred)
             # print(total_correct, (average_loss / len(dl_train)).item())
-            # print(total_correct/len(dl_train))
+            print(total_correct/len(dl_train))
             train_res.accuracy.append(total_correct / len(dl_train))
             train_res.loss.append(average_loss / len(dl_train))
             total_correct = 0
@@ -158,7 +159,7 @@ class LinearClassifier(object):
 
 
 def hyperparams():
-    hp = dict(weight_std=0.005, learn_rate=0.0018, weight_decay=0.005)
+    hp = dict(weight_std=0.005, learn_rate=0.0017, weight_decay=1)
     # TODO:
     #  Manually tune the hyperparameters to get the training accuracy test
     #  to pass.
