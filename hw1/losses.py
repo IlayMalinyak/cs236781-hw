@@ -65,27 +65,6 @@ class SVMHingeLoss(ClassifierLoss):
         self.grad_ctx['x'] = x
         self.grad_ctx['M'] = M
         self.grad_ctx['mask'] = mask
-        
-        
-        # tot_loss = []
-        # for i in range(len(x_scores)):
-        #     true_label = y[i]
-        #     loss = torch.clamp(x_scores[i] - x_scores[true_label] + self.delta, min=0)
-        #     loss = torch.cat((loss[:true_label], loss[true_label+1:]))
-        #     # if i == 0:
-        #         # print(x_scores[i,true_label])
-        #     tot_loss.append(loss.sum())
-        # # print(y_score[0])
-        # return torch.mean(torch.tensor(tot_loss))
-            
-            
-
-        # ========================
-
-        # TODO: Save what you need for gradient calculation in self.grad_ctx
-        # ====== YOUR CODE: ======
-        # ========================
-
         return loss
 
     def grad(self):
