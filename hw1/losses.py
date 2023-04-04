@@ -52,19 +52,30 @@ class SVMHingeLoss(ClassifierLoss):
 
         loss = None
         # ====== YOUR CODE: ======
-        N,C =x_scores.shape
-        # self.x = x
+        
+#         help0 = x_scores.gather(1, y.view(-1, 1))
+#         help1 = help0.expand(-1, x_scores.size(1))
+#         margins = x_scores - help1 + self.delta
+#         margins[margins<0] = 0
+#         mask = torch.ones_like(margins)
+#         mask.scatter_(1, y.view(-1, 1), 0)  # zero out the correct class
+#         losses = mask * margins
+#         losses = losses.sum(dim=1)
+#         loss2 = losses.mean()
+        
+        N,C =x_scores.shape    
         y_score =  x_scores[torch.arange(N),y]
         mask = torch.ones_like(x_scores).scatter_(1, y.unsqueeze(1), 0.).bool()
-        # print(mask.shape)
         M = x_scores - y_score[:,None] + self.delta
         res = M[mask].view(N, C-1)
-        # res = torch.maximum(res, torch.zeros_like(res)).sum(dim=1)
         res = torch.clamp(res, min=0).sum(dim=1)
         loss = torch.sum(res)/N
+        # print(loss, loss2)
         self.grad_ctx['x'] = x
         self.grad_ctx['M'] = M
         self.grad_ctx['mask'] = mask
+        self.grad_ctx['x_scores'] = x_scores
+        self.grad_ctx['y']=y
         return loss
 
     def grad(self):
@@ -73,34 +84,28 @@ class SVMHingeLoss(ClassifierLoss):
         :return: The gradient, of shape (D, C).
 
         """
-        # TODO:
-        #  Implement SVM loss gradient calculation
-        #  Same notes as above. Hint: Use the matrix M from above, based on
-        #  it create a matrix G such that X^T * G is the gradient.
+        # # TODO:
+        # #  Implement SVM loss gradient calculation
+        # #  Same notes as above. Hint: Use the matrix M from above, based on
+        # #  it create a matrix G such that X^T * G is the gradient.
+        # margins = self.grad_ctx["M"]
+        # mask = self.grad_ctx["mask"]
+        # x = self.grad_ctx["x"]
+        # x_scores = self.grad_ctx["x_scores"]
+        # y = self.grad_ctx["y"]
+        # grad2 = torch.zeros_like(x_scores)
+        # margin_mask = (margins > 0).float()
+        # margin_mask[mask == 0] = 0
+        # margin_mask[torch.arange(grad2.shape[0]), y] = -margin_mask.sum(dim=1)
+        # grad2 = (x.t() @ margin_mask)/x.shape[0]
+        # # return grad2/x.shape[0]
 
         grad = None
         # ====== YOUR CODE: ======
         g_dict = self.grad_ctx
-        M, mask = g_dict['M'], g_dict['mask']
-        g = torch.zeros_like(M)
-        g1 = M[mask].view(g.shape[0], g.shape[1]-1)
-        g1[g1 > 0] = 1
-        # print(g.shape, g1.shape, g_dict['mask'].shape)
-        g[mask] = g1.view(-1)
-        # g[g_dict['mask']][g > 0] = 1
-        # g2 = g[torch.logical_not(mask)]
-        # print(g2.shape)
-        g[torch.logical_not(mask)] = -g1.sum(dim=1)
-        # print(g.shape, g_dict['x'].shape)
-        grad = torch.mean(g[...,None]*g_dict['x'][:,None,:], dim=0)
-        # print(grad.shape)
-        # g1 = self.M[self.mask]
-        # g1[g1 > 0] = 1
-        # g1_plus_ind = torch.where(g1 > 0)
-        # g1[g1 <= 0] = 0
-        # g2 = self.M[torch.logical_not(self.mask)]
-        # g2[g2 > 0] = -1*g1.sum(dim=1)
-        
-        # ========================
-
-        return grad.T
+        M, mask, x = g_dict['M'], g_dict['mask'], g_dict['x']
+        g = (M > 0).float()
+        g[mask==0] = 0
+        g[torch.logical_not(mask)] = -g.sum(dim=1)
+        grad = (x.t() @ g)/x.shape[0]
+        return grad

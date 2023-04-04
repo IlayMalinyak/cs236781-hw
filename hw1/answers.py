@@ -79,7 +79,7 @@ part3_q3 = r"""
 1. We would say the learning rate is good. If it was too high, the loss would bounce between approximatley the same values and 
 would not decrease. in case of too low learning rate the loss would decrease very slowly and we would not reach saturation (plateau in the loss and accuracy). since in our graphs we see steep decrease (or increase in the case of accuracy) and than a more flat area, in conclude that the learning rate is good.
 
-2. **wait for better results**
+2. based on the graphs, the model is slightly overfit. this is because the training accuracy (loss) is slightly higher (lower) than the validation and test accuracies (losses)
 
 """
 
