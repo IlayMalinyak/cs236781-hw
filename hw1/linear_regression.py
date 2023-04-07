@@ -30,10 +30,7 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
 
         # TODO: Calculate the model prediction, y_pred
 
-        y_pred = None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        y_pred = np.matmul(X,self.weights_)
 
         return y_pred
 
@@ -48,12 +45,29 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
         # TODO:
         #  Calculate the optimal weights using the closed-form solution you derived.
         #  Use only numpy functions. Don't forget regularization!
+        
+        # w_opt = (X^T X + N * \lambda I)^-1 X^T y
+        n = X.shape[1]
+        N = X.shape[0]
+        
+        X_T = np.transpose(X)  # (n, N)
+        
+        X_T_X = np.matmul(X_T, X) # (n, n)
+        
+        lambda_I = self.reg_lambda * np.identity(n) * N  # (n, n)
+        
+        lambda_I[0][0] = 0
+                
+        X_T_X_lambda_I = X_T_X + lambda_I  # (n, n)
+        
+        X_T_X_lambda_I_invers = np.linalg.inv(X_T_X_lambda_I)
+        
+        X_T_y = np.matmul(X_T, y) #(n, 1)
 
-        w_opt = None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
-
+        w_opt = np.matmul(X_T_X_lambda_I_invers, X_T_y)
+        
+        w_opt = w_opt.reshape(-1)
+        
         self.weights_ = w_opt
         return self
 
@@ -77,7 +91,12 @@ def fit_predict_dataframe(
     """
     # TODO: Implement according to the docstring description.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    if not feature_names:
+        feature_names = df.columns.tolist()
+        feature_names.remove(target_name)
+    X = df[feature_names].to_numpy()
+    y = df[target_name].to_numpy()
+    y_pred = model.fit_predict(X, y)
     # ========================
     return y_pred
 
@@ -97,11 +116,10 @@ class BiasTrickTransformer(BaseEstimator, TransformerMixin):
         # TODO:
         #  Add bias term to X as the first feature.
         #  See np.hstack().
-
-        xb = None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        N = X.shape[0]
+        B = np.zeros(N) + 1
+        B = B.reshape((N,1))
+        xb = np.concatenate((B,X),1)
 
         return xb
 
@@ -111,13 +129,14 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
     Generates custom features for the Boston dataset.
     """
 
-    def __init__(self, degree=2):
+    def __init__(self, degree=2, TAX_threshold = 600, INDUS_threshold = 10):
         self.degree = degree
 
         # TODO: Your custom initialization, if needed
         # Add any hyperparameters you need and save them as above
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.TAX_threshold = TAX_threshold
+        self.INDUS_threshold = INDUS_threshold
         # ========================
 
     def fit(self, X, y=None):
@@ -139,9 +158,43 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
 
         X_transformed = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        features_to_polynomial = ['LSTAT', 'RM', 'PTRATIO', 'INDUS', 'TAX', 'NOX', 'CRIM', 'RAD', 'AGE', 'ZN', 'B', 'DIS']
+        # features_to_split_linear = ['INDUS', 'TAX']
+        all_featres = ["column of bias b", 'CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+                
+        indices_to_polynomial = [all_featres.index(name) for name in features_to_polynomial]
+        # indices_to_split_linear = [all_featres.index(name) for name in features_to_split_linear]
+        
+        columns_to_polynomial = X[:,indices_to_polynomial]
+        poly = PolynomialFeatures(self.degree)
+        colomns_poly = poly.fit_transform(columns_to_polynomial)
+        
+        indus_idx = all_featres.index("INDUS")
+        indus_column = X[:,indus_idx]
+        indus_column = indus_column.reshape(-1,1)
+        indus_filtered_to_small = indus_column * (indus_column<self.INDUS_threshold)
+        indus_filtered_to_large = indus_column * (indus_column>=self.INDUS_threshold)
+        split_indus = np.append(indus_filtered_to_small, indus_filtered_to_large, axis = 1)
+        
+        tax_idx = all_featres.index("TAX")
+        tax_column = X[:,tax_idx]
+        tax_column = tax_column.reshape(-1,1)
+        tax_filtered_to_small = tax_column * (tax_column<self.TAX_threshold)
+        tax_filtered_to_large = tax_column * (tax_column>=self.TAX_threshold)
+        split_tax = np.append(tax_filtered_to_small, tax_filtered_to_large, axis = 1)
+        
+        lstat_idx = all_featres.index("LSTAT")
+        lstat_column = X[:,lstat_idx]
+        lstat_column = lstat_column.reshape(-1,1)
+        
+        split_lstat = np.log(lstat_column)
+        
+        split_features = np.append(split_indus, split_tax, axis = 1)
+        split_features = np.append(split_features, split_lstat, axis = 1)
+        
+        X_transformed = np.append(colomns_poly, split_features, axis = 1)
+                
         # ========================
-
         return X_transformed
 
 
@@ -163,7 +216,33 @@ def top_correlated_features(df: DataFrame, target_feature, n=5):
     # TODO: Calculate correlations with target and sort features by it
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    
+    corrs_dict = dict()
+    
+    feature_names = list(df.columns)
+    feature_names.remove(target_feature)
+    
+    taget_data = df[target_feature]
+    target_mean = taget_data.mean()
+    target_dif = taget_data - target_mean
+    target_std = (target_dif**2).sum() ** 0.5
+    
+    for feature_name in feature_names:
+        feature_data = df[feature_name]
+        feature_mean = feature_data.mean()
+        feature_dif = feature_data - feature_mean
+        feature_std = (feature_dif**2).sum() ** 0.5
+        
+        covarience = (feature_dif*target_dif).sum()
+        
+        corr = covarience / (target_std * feature_std)
+        
+        corrs_dict[feature_name] = corr
+    
+    feature_names.sort(key=lambda x: 1-abs(corrs_dict[x]))
+    
+    top_n_features = feature_names[:n]
+    top_n_corr = [corrs_dict[feature] for feature in top_n_features]
     # ========================
 
     return top_n_features, top_n_corr
@@ -179,7 +258,9 @@ def mse_score(y: np.ndarray, y_pred: np.ndarray):
 
     # TODO: Implement MSE using numpy.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    
+    mse = ((y-y_pred)**2).mean()
+    
     # ========================
     return mse
 
@@ -194,14 +275,17 @@ def r2_score(y: np.ndarray, y_pred: np.ndarray):
 
     # TODO: Implement R^2 using numpy.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    y_mean = y.mean()
+    denominator = ((y-y_mean)**2).mean()
+    numerator = mse_score(y, y_pred)
+    r2 = 1 - numerator / denominator
     # ========================
     return r2
 
+from sklearn.model_selection import KFold
 
 def cv_best_hyperparams(
-    model: BaseEstimator, X, y, k_folds, degree_range, lambda_range
-):
+    model: BaseEstimator, X, y, k_folds, degree_range, lambda_range, INDUS_threshold_range = range(5,15), TAX_threshold_range = range(100,800,100)):
     """
     Cross-validate to find best hyperparameters with k-fold CV.
     :param X: Training data.
@@ -227,7 +311,45 @@ def cv_best_hyperparams(
     #  - You can use MSE or R^2 as a score.
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    kfold = KFold(n_splits=k_folds)
+    
+    params_to_find = {'linearregressor__reg_lambda': lambda_range,
+                      'bostonfeaturestransformer__degree': degree_range,
+                      
+                      'bostonfeaturestransformer__INDUS_threshold': INDUS_threshold_range,
+                      'bostonfeaturestransformer__TAX_threshold': TAX_threshold_range}
+    
+    feature_names = params_to_find.keys()
+    
+    best_params = dict()
+    
+    for feature in feature_names:
+        mses = []
+        for value in params_to_find[feature]:
+            total_mse = 0
+            for i, (train_index, test_index) in enumerate(kfold.split(X, y)):
+                train_X = X[train_index]
+                train_y = y[train_index]
+                
+                set_dict = {feature: value}
+                model.set_params(**set_dict)
+                model.fit(train_X, train_y)
+                
+                test_X = X[test_index]
+                test_y = y[test_index]
+                pred_y = model.predict(test_X)
+                mse = mse_score(test_y, pred_y)
+                
+                total_mse+=mse
+            total_mse/=k_folds
+            mses.append(total_mse)
+        best_mse_index = min(enumerate(mses), key=lambda x: x[1])[0]
+        best_mse_value = params_to_find[feature][best_mse_index]
+        best_params[feature] = best_mse_value
+        set_dict = {feature: best_mse_value}
+        model.set_params(**set_dict)
+        
+        
     # ========================
 
     return best_params

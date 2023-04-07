@@ -19,7 +19,7 @@ part1_q1 = r"""
 
 part1_q2 = r"""
 **Your answer:**
-no. choosing values for model hyperparameters should be done using training-set and cross validation procedure. using the test-set for that preform a leakage of the test-set into the training procedure. this way, any evaluation of the model using the test-set would be biased and would not reflect a true generalization error.
+no. choosing values for model hyperparameters should be done using training-set and cross validation procedure. using the test-set for that would cause leakage of the test-set into the training procedure. this way, any evaluation of the model using the test-set would be biased and would not reflect a true generalization error.
 
 """
 
@@ -68,7 +68,7 @@ part3_q2 = r"""
 the shape of the corresponding class label. the representation is based in the training set and if we have
 in the test set an image which is very different from the representation of its label in the train set, but 
 more close to a different representation, the model will miscalsiffied the image as the later class. we can see it happened between
-digits 7 and 1, digits 7 and 9 and digits 5 and 2 (these are similiar digits so the probability for this to occur in those digits is higher).
+digits 7 and 2 and 7 and 9 (these are similiar digits so the probability for this to occur in those digits is higher).
 2. In KNN there is no actual learning. the classification in based only on neighbouring samples. In LinearClassification model there is no affect of neighbouring samples. The model learn the unique features of each label and classify based on the similiarity between sample's features and the learned features.  
 
 """
@@ -92,25 +92,22 @@ part4_q1 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+A graph of the $y-\hat{y}$ as a function of $\hat{y}$ makes it possible to see the error itself directly and clearly.
+
+Conversely, a graph of $\hat{y}$ as a function of $y$ contains more information: it shows the prediction model itself, thus allowing it to be compared to the desired values $y$. This comparison allows us to understand where the error comes from. For example, we can see whether $y$ relate linearly to the $X$ values, and thus we will know whether the problem can be solved by mapping to another feature space, and also to which feature space (e.g. polynomial mapping), or perhaps the relationship between $X$ and $y$ is indeed linear but our model is far from the desired prediction because the slope is not appropriate, then maybe the regulation is too strong and we should weaken it.
+
+Another difference is that a graph of $\hat{y}$ as a function of $y$ can only be displayed for one feature at a time, or at most 2 features (if it's a 3D graph).
+
+So in summary, the graph of $y-\hat{y}$ as a function of $\hat{y}$ makes it possible to clearly see the error itself, while a graph of $\hat{y}$ as a function of $y$ makes it easier to see the cause of the error, but harder to see the error itself. Therefore, if we are still tuning the hyperparameters in the model we would prefer to see the graph of $\hat{y}$ as a function of $y$, and if we have already finished training the model and we just want to see how accurate it is, we would prefer the graph of $y-\hat{y}$ as a function of $\hat{y}$.
 
 """
 
 part4_q2 = r"""
-**Your answer:**
+1) The model is no longer a linear regression model, because it does not find a linear relationship between $X$ and $y$. It does use linear regression as part of the model, but this use is inside a "black box": the model accepts inputs $X$, and returns $\hat{y}$ that are not linearly related to them.
 
+2) In principle, we can fit any finite-time writable function. But in practice, the more parameters the function requires, the more difficult it will be to fit it without causing overfitting. Therefore we will prefer simpler functions.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+3) Now the model will be a non-straight "hyperplane": a curved separator that still divides the space in two, but the boundary of the separation is not a linear hyperplane but curved in space.
 
 """
 
@@ -118,12 +115,13 @@ part4_q3 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+1) The cross-validation process takes a long time. Therefore, we will prefer to shorten the search time by means of logarithmic compression of the search space.
+
+2) I adjusted each of the hyperparameters separately, so the total number of fit operations is the sum of the parameter ranges:
+$3+20+10+10+7 = 50$
+
+If I were to do a grid search, I would get a much higher number:
+$3+20+10+10+7 = 42000$
 
 """
 
