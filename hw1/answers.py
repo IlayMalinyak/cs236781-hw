@@ -54,10 +54,8 @@ part2_q2 = r"""
 
 part3_q1 = r"""
 **Your answer:**
-The loss is computed only on wrong clasiffications and its goal is to make sure
-all wrong classes will get loss higher by at least $Delta$ from the true class. as long 
-as this work, the true class will be classified correctly and therefore the size of $Delta$ 
-is not important. its only role is to seperate between wrong classes and true class
+$\Delta$ is irrelevant because we have the regularization term, $\lambda$, which we can tune. as $\Delta$ sepcify the margin size, $\lambda$ allows samples to to be inside the margin. the "cost" of sample being inside the margin determined by $\lambda$. for a given dataset we can either change $\Delta$ and fix $\lambda$ or change $\lambda$ and fix $\Delta$ and there is a correspondence between the two cases (for each value of $\Delta$ with fixed $\lambda$ there's a value of $\lambda$ with fixed $\Delta$ that will have the same accuracy). in our case $\lambda$ id the hyperparameter so $\Delta$ can be chosen arbitrarily
+
 
 """
 
@@ -79,7 +77,7 @@ part3_q3 = r"""
 1. We would say the learning rate is good. If it was too high, the loss would bounce between approximatley the same values and 
 would not decrease. in case of too low learning rate the loss would decrease very slowly and we would not reach saturation (plateau in the loss and accuracy). since in our graphs we see steep decrease (or increase in the case of accuracy) and than a more flat area, in conclude that the learning rate is good.
 
-2. based on the graphs, the model is slightly overfit. this is because the training accuracy (loss) is slightly higher (lower) than the validation and test accuracies (losses)
+2. based on the graphs, the model is slightly overfit. this can be seen from the graphs - the training accuracy (loss) is slightly higher (lower) than the validation and test accuracies (losses). the reason we are overfitting has might be the fact that the trainint-set is not representative enough - the train-set samples distribution is different than the test-set samples distribution. ther eare samples in the test-set that looks like samples from different class in the training set. this can lead to lower accuracy on the training-set and overfitting  
 
 """
 
@@ -121,7 +119,7 @@ part4_q3 = r"""
 $3+20+10+10+7 = 50$
 
 If I were to do a grid search, I would get a much higher number:
-$3+20+10+10+7 = 42000$
+$3*20*10*10*7 = 42000$
 
 """
 

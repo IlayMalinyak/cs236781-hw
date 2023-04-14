@@ -227,18 +227,25 @@ def top_correlated_features(df: DataFrame, target_feature, n=5):
     target_dif = taget_data - target_mean
     target_std = (target_dif**2).sum() ** 0.5
     
-    for feature_name in feature_names:
-        feature_data = df[feature_name]
-        feature_mean = feature_data.mean()
-        feature_dif = feature_data - feature_mean
-        feature_std = (feature_dif**2).sum() ** 0.5
-        
-        covarience = (feature_dif*target_dif).sum()
-        
-        corr = covarience / (target_std * feature_std)
-        
-        corrs_dict[feature_name] = corr
+    df = df.drop(target_feature, axis=1)
+    features_mean = df.mean(axis=0)
+    dif = (df-(features_mean.values)[None,:])
+    features_std = ((dif**2).sum(axis=0)) ** 0.5
+    corr  = (dif*((target_dif.values)[:,None])).sum(axis=0)/(features_std*target_std)
+    corrs_dict = corr.to_dict()
+
     
+#     for feature_name in feature_names:
+#         feature_data = df[feature_name]
+#         feature_mean = feature_data.mean()
+#         feature_dif = feature_data - feature_mean
+#         feature_std = (feature_dif**2).sum() ** 0.5
+        
+#         covarience = (feature_dif*target_dif).sum()
+        
+#         corr = covarience / (target_std * feature_std)
+        
+#         corrs_dict[feature_name] = corr
     feature_names.sort(key=lambda x: 1-abs(corrs_dict[x]))
     
     top_n_features = feature_names[:n]
