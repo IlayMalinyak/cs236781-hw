@@ -66,7 +66,7 @@ part3_q2 = r"""
 the shape of the corresponding class label. the representation is based in the training set and if we have
 in the test set an image which is very different from the representation of its label in the train set, but 
 more close to a different representation, the model will miscalsiffied the image as the later class. we can see it happened between
-digits 7 and 2 and 7 and 9 (these are similiar digits so the probability for this to occur in those digits is higher).
+digits 7 and 2 (these are similiar digits so the probability for this to occur in those digits is higher).
 2. In KNN there is no actual learning. the classification in based only on neighbouring samples. In LinearClassification model there is no affect of neighbouring samples. The model learn the unique features of each label and classify based on the similiarity between sample's features and the learned features.  
 
 """
