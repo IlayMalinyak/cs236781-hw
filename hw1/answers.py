@@ -77,7 +77,7 @@ part3_q3 = r"""
 1. We would say the learning rate is good. If it was too high, the loss would bounce between approximatley the same values and 
 would not decrease. in case of too low learning rate the loss would decrease very slowly and we would not reach saturation (plateau in the loss and accuracy). since in our graphs we see steep decrease (or increase in the case of accuracy) and than a more flat area, in conclude that the learning rate is good.
 
-2. based on the graphs, the model is slightly overfit. this can be seen from the graphs - the training accuracy (loss) is slightly higher (lower) than the validation and test accuracies (losses). the reason we are overfitting has might be the fact that the trainint-set is not representative enough - the train-set samples distribution is different than the test-set samples distribution. ther eare samples in the test-set that looks like samples from different class in the training set. this can lead to lower accuracy on the training-set and overfitting  
+2. based on the graphs, the model is slightly underfitted. this can be seen from the graphs -  the validation accuracy (losses) can be improved a little more. generally, when the model is overfitted the training set, we will see the validation loss increasing. when its underfitted the training set the validation loss will decrease, together with the training loss.  the meaning of underfitting is that the model didn't learn all the different features representations. the reason for that is usually lack of complexity of the model. for a given size of dataset, there's some complexity needed to learn all the features in the dataset. if the model is not complex enough we will likely underfit. if the model is too complex, we will likely overfit. as we see a small undefitting pattern in our graphs, we can conclude that the model is not complex enough for this dataset. we think that a more complex model (with more parameters) would give better results.   
 
 """
 
@@ -97,6 +97,9 @@ Conversely, a graph of $\hat{y}$ as a function of $y$ contains more information:
 Another difference is that a graph of $\hat{y}$ as a function of $y$ can only be displayed for one feature at a time, or at most 2 features (if it's a 3D graph).
 
 So in summary, the graph of $y-\hat{y}$ as a function of $\hat{y}$ makes it possible to clearly see the error itself, while a graph of $\hat{y}$ as a function of $y$ makes it easier to see the cause of the error, but harder to see the error itself. Therefore, if we are still tuning the hyperparameters in the model we would prefer to see the graph of $\hat{y}$ as a function of $y$, and if we have already finished training the model and we just want to see how accurate it is, we would prefer the graph of $y-\hat{y}$ as a function of $\hat{y}$.
+In this way we see that the mean residual in the test set is 0 just like in the training set, and that the gap between the mean and the standard deviation limits for the training is greater than the gap between the std of the training set and the std of the test set. The conclusion is that most of the error is due to bias and not variance, that is, the model is more susceptible to underfitting than overfitting.
+
+This is a conclusion that can be easily seen from this plot pattern, but not from the alternative pattern
 
 """
 
